@@ -53,6 +53,7 @@ namespace CyberNixHighScores.Controllers
         {
             if (pwd != "trollolol")
                 return BadRequest();
+            Count();
             lock (_lock)
             {
                 try
@@ -94,6 +95,29 @@ namespace CyberNixHighScores.Controllers
                 return Ok();
             }
 
+        }
+
+        private static object _countSync = new Object();
+
+        [Route("count")]
+        [HttpGet]
+        public void Count()
+        {
+            lock (_countSync)
+            {
+                System.IO.File.AppendAllText("counter", "a");
+            }
+        }
+        [Route("getcount")]
+        [HttpGet]
+        public int GetCount()
+        {
+            int count = 0;
+            lock (_countSync)
+            {
+                count = System.IO.File.ReadAllText("counter").Count((c) => { return c == 'a'; });
+            }
+            return count;
         }
     }
 }
